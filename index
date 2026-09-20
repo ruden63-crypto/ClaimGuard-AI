@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClaimGuard AI — LegalTech Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0b132b',
+                            900: '#070b19',
+                            950: '#04060f',
+                        },
+                        brand: {
+                            blue: '#2563eb',
+                            cyan: '#0284c7',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .scan-line {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+            box-shadow: 0 0 15px #38bdf8;
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070b19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-100 min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+
+    <aside class="w-full md:w-64 bg-navy-900 border-b md:border-b-0 md:border-r border-slate-800/80 p-5 flex flex-col justify-between shrink-0 z-20">
+        <div>
+            <!-- Brand Header -->
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white text-xl shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-wide text-white">ClaimGuard <span class="text-brand-accent">AI</span></h1>
+                    <p class="text-xs text-slate-400 font-medium">LegalTech РК &bull; 2026</p>
+                </div>
+            </div>
+
+            <!-- Language & Navigation Menu -->
+            <div class="mb-6">
+                <div class="flex bg-navy-950 p-1 rounded-xl border border-slate-800 mb-4">
+                    <button onclick="setLanguage('ru')" id="lang-ru-btn" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-blue-600 text-white transition-all">RU</button>
+                    <button onclick="setLanguage('en')" id="lang-en-btn" class="flex-1 py-1 text-[11px] font-bold rounded-lg text-slate-400 hover:text-white transition-all">EN</button>
+                </div>
+            </div>
+
+            <nav class="space-y-1.5" id="nav-menu">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn active w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-medium text-sm transition-all bg-blue-600/10 text-brand-accent border border-blue-500/20">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span data-i18n="navDashboard">Дашборд</span>
+                </button>
+                <button onclick="switchTab('audit')" id="nav-audit" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-microscope w-5 text-center"></i>
+                    <span data-i18n="navAudit">AI-Risk Audit</span>
+                </button>
+                <button onclick="switchTab('certificate')" id="nav-certificate" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-stamp w-5 text-center"></i>
+                    <span data-i18n="navCert">Сертификат IP</span>
+                </button>
+                <button onclick="switchTab('claims')" id="nav-claims" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-gavel w-5 text-center"></i>
+                    <span data-i18n="navClaims">Генератор Жалоб</span>
+                </button>
+                <button onclick="switchTab('pricing')" id="nav-pricing" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-wallet w-5 text-center"></i>
+                    <span data-i18n="navPricing">Оплата Pay-per-use</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="pt-6 mt-6 border-t border-slate-800/80">
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-xs">
+                        ББ
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-semibold text-slate-200 truncate">Бейсенбай Б.</p>
+                        <p class="text-[10px] text-slate-400 truncate">Капитан стартапа</p>
+                    </div>
+                </div>
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-800/60">
+            <div>
+                <span class="text-xs font-bold text-brand-cyan tracking-wider uppercase" data-i18n="headerSubtitle">Юридический IT-ассистент РК</span>
+                <h2 id="page-title" class="text-2xl md:text-3xl font-extrabold text-white">Панель управления</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openPaymentModal('Базовый пакет аудитов', 500)" class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-blue-600/20 transition-all">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span data-i18n="topUpBtn">Пополнить баланс (Kaspi)</span>
+                </button>
+            </div>
+        </header>
+
+        <section id="view-dashboard" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-semibold text-slate-400" data-i18n="statFiles">Проверено файлов</span>
+                        <span class="p-2 rounded-lg bg-blue-500/10 text-brand-accent text-xs"><i class="fa-solid fa-file-code"></i></span>
+                    </div>
+                    <p class="text-3xl font-black text-white">24</p>
+                    <p class="text-xs text-emerald-400 font-medium mt-2"><i class="fa-solid fa-arrow-up"></i> +8 за эту неделю</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-semibold text-slate-400" data-i18n="statCerts">Выдано Сертификатов IP</span>
+                        <span class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs"><i class="fa-solid fa-certificate"></i></span>
+                    </div>
+                    <p class="text-3xl font-black text-white">12</p>
+                    <p class="text-xs text-slate-400 font-medium mt-2">Зафиксированы в реестре РК</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-semibold text-slate-400" data-i18n="statClaims">Сгенерировано Жалоб</span>
+                        <span class="p-2 rounded-lg bg-amber-500/10 text-amber-400 text-xs"><i class="fa-solid fa-gavel"></i></span>
+                    </div>
+                    <p class="text-3xl font-black text-white">5</p>
+                    <p class="text-xs text-emerald-400 font-medium mt-2"><i class="fa-solid fa-check"></i> 100% удалений контента</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-semibold text-slate-400" data-i18n="statRisk">Средний AI-риск IP</span>
+                        <span class="p-2 rounded-lg bg-rose-500/10 text-rose-400 text-xs"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                    </div>
+                    <p class="text-3xl font-black text-amber-400">22%</p>
+                    <p class="text-xs text-slate-400 font-medium mt-2">Безопасная зона (&lt;30%)</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles text-brand-accent"></i> <span data-i18n="quickAuditTitle">Быстрый аудит проекта</span>
+                            </h3>
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Законодательство РК 2026</span>
+                        </div>
+                        <p class="text-sm text-slate-400 mb-6" data-i18n="quickAuditDesc">
+                            Загрузите код стартапа или медиафайл. Сервис выявит долю кода/текста от AI и определит, узаконен ли ваш продукт по Закону РК «Об авторском праве».
+                        </p>
+                    </div>
+                    <div class="bg-navy-900 border border-dashed border-slate-700/80 rounded-xl p-6 text-center hover:border-brand-accent/50 transition-all cursor-pointer" onclick="switchTab('audit')">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-brand-accent mb-3"></i>
+                        <h4 class="text-sm font-semibold text-white" data-i18n="quickAuditCta">Перейти в сканер документов</h4>
+                        <p class="text-xs text-slate-500 mt-1">Поддерживает .js, .py, .html, .txt, .pdf</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+                    <h3 class="text-base font-bold text-white mb-4" data-i18n="historyTitle">История действий</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3 pb-3 border-b border-slate-800/80">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-stamp text-xs"></i>
+                            </div>
+                            <div class="text-xs">
+                                <p class="font-semibold text-slate-200">Выдан сертификат #CG-8921</p>
+                                <p class="text-slate-400 mt-0.5">Файл: <code class="text-slate-300">smart_contract.sol</code></p>
+                                <span class="text-[10px] text-slate-500">Сегодня, 14:20</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 pb-3 border-b border-slate-800/80">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-shield-cat text-xs"></i>
+                            </div>
+                            <div class="text-xs">
+                                <p class="font-semibold text-slate-200">Аудит выявил AI-риск 65%</p>
+                                <p class="text-slate-400 mt-0.5">Файл: <code class="text-slate-300">landing_copy.txt</code></p>
+                                <span class="text-[10px] text-slate-500">Вчера, 18:45</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-audit" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-code text-brand-accent"></i> <span data-i18n="inputTitle">Ввод исходного кода или текста</span>
+                            </h3>
+                            <button onclick="loadDemoCode()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-brand-accent font-medium transition-all">
+                                <i class="fa-solid fa-bolt mr-1"></i> <span data-i18n="demoBtn">Демо-код</span>
+                            </button>
+                        </div>
+                        
+                        <div class="relative">
+                            <textarea id="audit-input" rows="12" class="w-full bg-navy-950 text-slate-200 font-mono text-xs p-4 rounded-xl border border-slate-800 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent outline-none transition-all resize-none" placeholder="Вставьте ваш исходный код или текст проекта для юридической проверки на AI-риски..."></textarea>
+                            <div id="scan-overlay" class="hidden absolute inset-0 bg-navy-950/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center overflow-hidden">
+                                <div class="scan-line absolute w-full"></div>
+                                <i class="fa-solid fa-brain text-4xl text-brand-accent animate-pulse mb-3"></i>
+                                <p class="text-sm font-bold text-white" data-i18n="scanningStatus">Сканирование нейросетевых паттернов...</p>
+                                <p class="text-xs text-slate-400 mt-1">Анализ авторского следа по стандартам РК</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="text-xs text-slate-500"><span data-i18n="costLabel">Стоимость аудита:</span> <strong class="text-slate-300">500 ₸ / файл</strong></span>
+                            <button onclick="runAuditScanner()" id="audit-btn" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass-chart"></i> <span data-i18n="runAuditBtn">Запустить AI-Аудит</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 h-full flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-white mb-4 border-b border-slate-800 pb-3" data-i18n="resultsTitle">Результаты экспертизы</h3>
+                            
+                            <div id="audit-placeholder" class="text-center py-12 text-slate-500">
+                                <i class="fa-solid fa-shield-virus text-4xl mb-3 text-slate-700"></i>
+                                <p class="text-sm font-medium" data-i18n="resultsPlaceholder">Результат появится здесь после запуска сканирования.</p>
+                            </div>
+
+                            <div id="audit-results" class="hidden space-y-5">
+                                <div>
+                                    <div class="flex justify-between text-xs font-bold mb-2">
+                                        <span class="text-emerald-400"><span data-i18n="humanRatio">Человеческий вклад:</span> <span id="val-human">72%</span></span>
+                                        <span class="text-rose-400"><span data-i18n="aiRatio">AI-След:</span> <span id="val-ai">28%</span></span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden flex">
+                                        <div id="bar-human" class="bg-emerald-500 h-full transition-all duration-1000" style="width: 72%"></div>
+                                        <div id="bar-ai" class="bg-rose-500 h-full transition-all duration-1000" style="width: 28%"></div>
+                                    </div>
+                                </div>
+
+                                <div id="risk-status-box" class="p-4 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">
+                                    <div class="flex items-center gap-2 font-bold text-sm mb-1">
+                                        <i id="risk-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+                                        <span id="risk-title">Высокая вероятность узаконения (IP Safe)</span>
+                                    </div>
+                                    <p id="risk-desc" class="text-xs leading-relaxed text-slate-300 opacity-90">
+                                        Человеческий вклад превышает 70%. Код признается авторским объектом по законодательству РК.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="audit-actions" class="hidden pt-4 border-t border-slate-800 mt-4">
+                            <button onclick="switchTab('certificate')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-certificate"></i> <span data-i18n="genCertBtn">Выдать Сертификат Авторства</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-certificate" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <h3 class="text-base font-bold text-white border-b border-slate-800 pb-3" data-i18n="certFormTitle">Данные для сертификата</h3>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="certAuthorLabel">ФИО Автор / Капитан</label>
+                            <input type="text" id="cert-author" value="Бейсенбай Бауыржан" class="w-full bg-navy-950 text-slate-200 text-xs p-3 rounded-xl border border-slate-800 focus:border-brand-accent outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="certTitleLabel">Название стартапа / Объекта IP</label>
+                            <input type="text" id="cert-title" value="ClaimGuard AI — Core Engine" class="w-full bg-navy-950 text-slate-200 text-xs p-3 rounded-xl border border-slate-800 focus:border-brand-accent outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="certTypeLabel">Тип объекта</label>
+                            <select id="cert-type" class="w-full bg-navy-950 text-slate-200 text-xs p-3 rounded-xl border border-slate-800 focus:border-brand-accent outline-none">
+                                <option value="Программа для ЭВМ (Исходный код)">Программа для ЭВМ (Исходный код)</option>
+                                <option value="Дизайн и Графический интерфейс">Дизайн и Графический интерфейс</option>
+                                <option value="База данных / Алгоритм">База данных / Алгоритм</option>
+                            </select>
+                        </div>
+
+                        <button onclick="updateCertificate()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrows-rotate"></i> <span data-i18n="updateCertBtn">Обновить предпросмотр</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7">
+                    <div class="glass-panel p-8 rounded-2xl border border-amber-500/20 bg-gradient-to-b from-navy-900 to-navy-950 relative overflow-hidden shadow-2xl" id="printable-certificate">
+                        <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/5 rounded-full border border-amber-500/10 flex items-center justify-center pointer-events-none">
+                            <i class="fa-solid fa-stamp text-9xl text-amber-500/10"></i>
+                        </div>
+
+                        <div class="flex justify-between items-start border-b border-amber-500/30 pb-6 mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl">
+                                    <i class="fa-solid fa-certificate"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs uppercase font-extrabold tracking-widest text-amber-400">Реестр цифрового депонирования</h4>
+                                    <h2 class="text-xl font-black text-white">СЕРТИФИКАТ АВТОРСТВА</h2>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-mono text-amber-400/80 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20" id="cert-id-display">ID: #CG-2026-8921</span>
+                        </div>
+
+                        <div class="space-y-4 text-xs text-slate-300">
+                            <p class="leading-relaxed" data-i18n="certBodyIntro">
+                                Настоящий сертификат подтверждает регистрацию цифрового следа и зафиксированный приоритет авторских прав в отношении объекта интеллектуальной собственности:
+                            </p>
+
+                            <div class="bg-navy-950/80 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <div class="flex justify-between"><span class="text-slate-500">Название объекта:</span><strong id="display-title" class="text-white">ClaimGuard AI — Core Engine</strong></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Правообладатель / Автор:</span><strong id="display-author" class="text-emerald-400">Бейсенбай Бауыржан</strong></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Тип объекта:</span><span id="display-type" class="text-slate-300">Программа для ЭВМ (Исходный код)</span></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Метка времени (Timestamp):</span><span id="display-date" class="font-mono text-brand-accent">20.09.2026 UTC+5</span></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-800 flex justify-between items-end text-[10px] text-slate-500">
+                            <div>
+                                <p class="font-semibold text-slate-400">Система валидации:</p>
+                                <p class="font-mono text-brand-accent">ClaimGuard AI Legal Engine v2.4</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-amber-400">Электронно-цифровая метка</p>
+                                <p class="text-slate-400">Законодательство Республики Казахстан</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex gap-3">
+                        <button onclick="downloadCertificate()" class="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-download"></i> <span data-i18n="downloadCertBtn">Скачать Сертификат (PDF / Печать)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-claims" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <h3 class="text-base font-bold text-white border-b border-slate-800 pb-3" data-i18n="claimParamsTitle">Параметры нарушения</h3>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="claimTypeLabel">Тип претензии</label>
+                            <select id="claim-type" onchange="generateClaimText()" class="w-full bg-navy-950 text-slate-200 text-xs p-3 rounded-xl border border-slate-800 focus:border-brand-accent outline-none">
+                                <option value="dmca">DMCA Takedown Notice (YouTube / Веб-сайты)</option>
+                                <option value="rk">Досудебная претензия РК (Закон № 6-I)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="violatorLabel">Нарушитель (Канал / Сайт / ФИО)</label>
+                            <input type="text" id="claim-violator" value="Telegram-канал @pirate_tech_rk" oninput="generateClaimText()" class="w-full bg-navy-950 text-slate-200 text-xs p-3 rounded-xl border border-slate-800 focus:border-brand-accent outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="violatorUrlLabel">Ссылка на скопированный материал</label>
+                            <input type="text" id="claim-url" value="https://t.me/pirate_tech_rk/104" oninput="generateClaimText()" class="w-full bg-navy-950 text-slate-200 text-xs p-3 rounded-xl border border-slate-800 focus:border-brand-accent outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <h3 class="text-base font-bold text-white" data-i18n="claimTextTitle">Текст юридической претензии</h3>
+                            <button onclick="copyClaimText()" class="text-xs px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-brand-accent font-medium rounded-lg transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i> <span data-i18n="copyBtn">Копировать</span>
+                            </button>
+                        </div>
+
+                        <textarea id="claim-output-text" rows="14" readonly class="w-full bg-navy-950 text-slate-300 font-mono text-xs p-4 rounded-xl border border-slate-800 outline-none leading-relaxed resize-none"></textarea>
+
+                        <div class="flex items-center justify-between text-xs text-slate-400">
+                            <span><span data-i18n="genCostLabel">Стоимость генерации:</span> <strong class="text-white">1 500 ₸</strong></span>
+                            <button onclick="openPaymentModal('Официальная Юридическая Претензия', 1500)" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl shadow-lg transition-all" data-i18n="orderEcpBtn">
+                                Заказать с ЭЦП-печатью
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-pricing" class="tab-content hidden space-y-6">
+            <div class="text-center max-w-xl mx-auto space-y-2 mb-8">
+                <h3 class="text-2xl font-black text-white" data-i18n="pricingHeader">Оплата Pay-Per-Use (За действие)</h3>
+                <p class="text-xs text-slate-400" data-i18n="pricingSub">Без ежемесячных подписок. Вы платите только за реальный результат юридической защиты.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-brand-accent/40 transition-all">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-brand-accent bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-500/20">Экспресс</span>
+                        <h4 class="text-xl font-extrabold text-white mt-3">AI-Risk Audit</h4>
+                        <p class="text-xs text-slate-400 mt-1">Проверка одного файла кода или текста на нейросетевой след.</p>
+                        
+                        <div class="my-6">
+                            <span class="text-3xl font-black text-white">500 ₸</span>
+                            <span class="text-xs text-slate-500">/ файл</span>
+                        </div>
+                    </div>
+                    <button onclick="openPaymentModal('Разовый AI-Аудит', 500)" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-brand-accent font-semibold text-xs rounded-xl transition-all" data-i18n="payKaspiBtn">
+                        Оплатить через Kaspi
+                    </button>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl border-2 border-brand-accent flex flex-col justify-between relative shadow-xl shadow-blue-500/10">
+                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-accent text-navy-950 font-extrabold text-[10px] uppercase px-3 py-0.5 rounded-full shadow">Популярно</span>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Защита IP</span>
+                        <h4 class="text-xl font-extrabold text-white mt-3">Сертификат Авторства</h4>
+                        <p class="text-xs text-slate-400 mt-1">Фиксация цифрового отпечатка проекта в реестре с штампом времени.</p>
+                        
+                        <div class="my-6">
+                            <span class="text-3xl font-black text-brand-accent">1 500 ₸</span>
+                            <span class="text-xs text-slate-500">/ сертификат</span>
+                        </div>
+                    </div>
+                    <button onclick="openPaymentModal('Сертификат Авторства', 1500)" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg transition-all" data-i18n="payKaspiBtn">
+                        Оплатить через Kaspi
+                    </button>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-brand-accent/40 transition-all">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">Защита</span>
+                        <h4 class="text-xl font-extrabold text-white mt-3">Претензия / DMCA</h4>
+                        <p class="text-xs text-slate-400 mt-1">Генерация юридического документа для блокировки украденного контента.</p>
+                        
+                        <div class="my-6">
+                            <span class="text-3xl font-black text-white">1 500 ₸</span>
+                            <span class="text-xs text-slate-500">/ документ</span>
+                        </div>
+                    </div>
+                    <button onclick="openPaymentModal('Юридическая Претензия', 1500)" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-brand-accent font-semibold text-xs rounded-xl transition-all" data-i18n="payKaspiBtn">
+                        Оплатить через Kaspi
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="payment-modal" class="hidden fixed inset-0 bg-navy-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-panel max-w-sm w-full rounded-3xl p-6 border border-slate-700/80 shadow-2xl relative">
+            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="text-center space-y-3 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 mx-auto flex items-center justify-center text-xl font-black">
+                    K
+                </div>
+                <h3 class="text-lg font-extrabold text-white">Оплата через Kaspi QR</h3>
+                <p class="text-xs text-slate-400" id="modal-service-name">Услуга: AI-Risk Audit</p>
+                <p class="text-2xl font-black text-white" id="modal-service-price">500 ₸</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl w-48 h-48 mx-auto mb-6 flex flex-col items-center justify-center border border-slate-200">
+                <i class="fa-solid fa-qrcode text-8xl text-slate-900"></i>
+                <span class="text-[9px] font-bold text-slate-500 mt-2">Сканируйте в приложении Kaspi</span>
+            </div>
+
+            <button onclick="confirmPayment()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all" data-i18n="simPaymentBtn">
+                <i class="fa-solid fa-check mr-1.5"></i> Симулировать успешную оплату
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'ru';
+
+        const dictionary = {
+            ru: {
+                navDashboard: 'Дашборд',
+                navAudit: 'AI-Risk Audit',
+                navCert: 'Сертификат IP',
+                navClaims: 'Генератор Жалоб',
+                navPricing: 'Оплата Pay-per-use',
+                headerSubtitle: 'Юридический IT-ассистент РК',
+                topUpBtn: 'Пополнить баланс (Kaspi)',
+                statFiles: 'Проверено файлов',
+                statCerts: 'Выдано Сертификатов IP',
+                statClaims: 'Сгенерировано Жалоб',
+                statRisk: 'Средний AI-риск IP',
+                quickAuditTitle: 'Быстрый аудит проекта',
+                quickAuditDesc: 'Загрузите код стартапа или медиафайл. Сервис выявит долю кода/текста от AI и определит, узаконен ли ваш продукт по Закону РК «Об авторском праве».',
+                quickAuditCta: 'Перейти в сканер документов',
+                historyTitle: 'История действий',
+                inputTitle: 'Ввод исходного кода или текста',
+                demoBtn: 'Демо-код',
+                scanningStatus: 'Сканирование нейросетевых паттернов...',
+                costLabel: 'Стоимость аудита:',
+                runAuditBtn: 'Запустить AI-Аудит',
+                resultsTitle: 'Результаты экспертизы',
+                resultsPlaceholder: 'Результат появится здесь после запуска сканирования.',
+                humanRatio: 'Человеческий вклад:',
+                aiRatio: 'AI-След:',
+                genCertBtn: 'Выдать Сертификат Авторства',
+                certFormTitle: 'Данные для сертификата',
+                certAuthorLabel: 'ФИО Автор / Капитан',
+                certTitleLabel: 'Название стартапа / Объекта IP',
+                certTypeLabel: 'Тип объекта',
+                updateCertBtn: 'Обновить предпросмотр',
+                certBodyIntro: 'Настоящий сертификат подтверждает регистрацию цифрового следа и зафиксированный приоритет авторских прав в отношении объекта интеллектуальной собственности:',
+                downloadCertBtn: 'Скачать Сертификат (PDF / Печать)',
+                claimParamsTitle: 'Параметры нарушения',
+                claimTypeLabel: 'Тип претензии',
+                violatorLabel: 'Нарушитель (Канал / Сайт / ФИО)',
+                violatorUrlLabel: 'Ссылка на скопированный материал',
+                claimTextTitle: 'Текст юридической претензии',
+                copyBtn: 'Копировать',
+                genCostLabel: 'Стоимость генерации:',
+                orderEcpBtn: 'Заказать с ЭЦП-печатью',
+                pricingHeader: 'Оплата Pay-Per-Use (За действие)',
+                pricingSub: 'Без ежемесячных подписок. Вы платите только за реальный результат юридической защиты.',
+                payKaspiBtn: 'Оплатить через Kaspi',
+                simPaymentBtn: 'Симулировать успешную оплату'
+            },
+            en: {
+                navDashboard: 'Dashboard',
+                navAudit: 'AI-Risk Audit',
+                navCert: 'IP Certificate',
+                navClaims: 'Claim Generator',
+                navPricing: 'Pay-per-use Pricing',
+                headerSubtitle: 'Kazakhstan LegalTech AI Assistant',
+                topUpBtn: 'Top Up Balance (Kaspi)',
+                statFiles: 'Files Audited',
+                statCerts: 'IP Certificates Issued',
+                statClaims: 'Legal Claims Generated',
+                statRisk: 'Avg AI IP Risk',
+                quickAuditTitle: 'Quick Project Audit',
+                quickAuditDesc: 'Upload startup code or media. ClaimGuard detects AI contribution percentage and legal registration eligibility under Kazakhstani IP laws.',
+                quickAuditCta: 'Open Document Scanner',
+                historyTitle: 'Activity Log',
+                inputTitle: 'Source Code or Text Input',
+                demoBtn: 'Load Demo Code',
+                scanningStatus: 'Scanning neural patterns...',
+                costLabel: 'Audit cost:',
+                runAuditBtn: 'Run AI Audit',
+                resultsTitle: 'Audit Expertise Results',
+                resultsPlaceholder: 'Results will appear here after running the scan.',
+                humanRatio: 'Human Contribution:',
+                aiRatio: 'AI Footprint:',
+                genCertBtn: 'Issue IP Certificate',
+                certFormTitle: 'Certificate Details',
+                certAuthorLabel: 'Full Name / Author',
+                certTitleLabel: 'Startup / IP Name',
+                certTypeLabel: 'Object Type',
+                updateCertBtn: 'Update Preview',
+                certBodyIntro: 'This digital certificate confirms the timestamped IP priority registration for the specified asset:',
+                downloadCertBtn: 'Download Certificate (PDF)',
+                claimParamsTitle: 'Infringement Details',
+                claimTypeLabel: 'Claim Type',
+                violatorLabel: 'Violator (Channel / Site / Name)',
+                violatorUrlLabel: 'URL of Infringing Material',
+                claimTextTitle: 'Generated Legal Claim',
+                copyBtn: 'Copy Text',
+                genCostLabel: 'Generation cost:',
+                orderEcpBtn: 'Order with Digital Signature',
+                pricingHeader: 'Pay-Per-Use Pricing',
+                pricingSub: 'No monthly subscriptions. Pay only for tangible legal outcomes.',
+                payKaspiBtn: 'Pay with Kaspi',
+                simPaymentBtn: 'Simulate Successful Payment'
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('lang-ru-btn').className = lang === 'ru' ? 'flex-1 py-1 text-[11px] font-bold rounded-lg bg-blue-600 text-white transition-all' : 'flex-1 py-1 text-[11px] font-bold rounded-lg text-slate-400 hover:text-white transition-all';
+            document.getElementById('lang-en-btn').className = lang === 'en' ? 'flex-1 py-1 text-[11px] font-bold rounded-lg bg-blue-600 text-white transition-all' : 'flex-1 py-1 text-[11px] font-bold rounded-lg text-slate-400 hover:text-white transition-all';
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dictionary[lang][key]) {
+                    el.innerText = dictionary[lang][key];
+                }
+            });
+
+            generateClaimText();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-600/10', 'text-brand-accent', 'border', 'border-blue-500/20');
+                btn.classList.add('text-slate-400');
+            });
+
+            const targetView = document.getElementById('view-' + tabId);
+            if (targetView) targetView.classList.remove('hidden');
+
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-blue-600/10', 'text-brand-accent', 'border', 'border-blue-500/20');
+                activeBtn.classList.remove('text-slate-400');
+            }
+
+            const titles = {
+                'dashboard': dictionary[currentLang].navDashboard,
+                'audit': dictionary[currentLang].navAudit,
+                'certificate': dictionary[currentLang].navCert,
+                'claims': dictionary[currentLang].navClaims,
+                'pricing': dictionary[currentLang].navPricing
+            };
+            document.getElementById('page-title').innerText = titles[tabId] || 'ClaimGuard AI';
+        }
+
+        function loadDemoCode() {
+            const demoText = `// ClaimGuard AI - Core Smart Contract Module\n// Developer: Beisenbay Bauyrzhan\n\nfunction verifyCopyrightProof(bytes32 fileHash, address author) public {\n    require(msg.sender == author, "Unauthorized author signature");\n    bytes32 timestamp = block.timestamp;\n    emit IPRegistered(fileHash, author, timestamp);\n}`;
+            document.getElementById('audit-input').value = demoText;
+        }
+
+        function runAuditScanner() {
+            const input = document.getElementById('audit-input').value.trim();
+            if (!input) {
+                alert(currentLang === 'ru' ? 'Пожалуйста, введите код или текст!' : 'Please enter code or text!');
+                return;
+            }
+
+            const overlay = document.getElementById('scan-overlay');
+            const btn = document.getElementById('audit-btn');
+            
+            overlay.classList.remove('hidden');
+            btn.disabled = true;
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                btn.disabled = false;
+
+                const humanRatio = Math.floor(Math.random() * (90 - 65 + 1)) + 65;
+                const aiRatio = 100 - humanRatio;
+
+                document.getElementById('audit-placeholder').classList.add('hidden');
+                document.getElementById('audit-results').classList.remove('hidden');
+                document.getElementById('audit-actions').classList.remove('hidden');
+
+                document.getElementById('val-human').innerText = humanRatio + '%';
+                document.getElementById('val-ai').innerText = aiRatio + '%';
+
+                document.getElementById('bar-human').style.width = humanRatio + '%';
+                document.getElementById('bar-ai').style.width = aiRatio + '%';
+            }, 1500);
+        }
+
+        function updateCertificate() {
+            const author = document.getElementById('cert-author').value || "Бейсенбай Бауыржан";
+            const title = document.getElementById('cert-title').value || "ClaimGuard AI";
+            const type = document.getElementById('cert-type').value;
+
+            document.getElementById('display-author').innerText = author;
+            document.getElementById('display-title').innerText = title;
+            document.getElementById('display-type').innerText = type;
+        }
+
+        function downloadCertificate() {
+            alert(currentLang === 'ru' ? 'Сертификат сохранен!' : 'Certificate saved!');
+        }
+
+        function generateClaimText() {
+            const type = document.getElementById('claim-type').value;
+            const violator = document.getElementById('claim-violator').value || "[Target]";
+            const url = document.getElementById('claim-url').value || "[URL]";
+
+            let text = "";
+            if (type === 'dmca') {
+                text = `OFFICIAL DMCA TAKEDOWN NOTICE\nTo: Content Abuse Team / Platform Administrator\n\nI am writing to notify you of unauthorized copyright infringement on your platform.\n\nInfringing Resource: ${violator}\nURL of Infringement: ${url}\n\nOriginal Work Rights Holder: Бейсенбай Бауыржан (ClaimGuard AI IP Registry)\n\nI have a good faith belief that the use of the material is not authorized by the copyright owner. I request immediate removal of the specified content.`;
+            } else {
+                text = `ДОСУДЕБНАЯ ПРЕТЕНЗИЯ\nВ соответствии с Законом РК «Об авторском праве и смежных правах» № 6-I\n\nКому: Администрации ресурса ${violator}\nАдрес/URL: ${url}\n\nНастоящим уведомляю, что на указанном ресурсе незаконно размещены материалы, интеллектуальные права на которые принадлежат автору Бейсенбай Б.\n\nТРЕБУЮ:\n1. Незамедлительно прекратить использование и удалить скопированный объект.\n2. В противном случае дело будет передано в Департамент юстиции РК.`;
+            }
+
+            document.getElementById('claim-output-text').value = text;
+        }
+
+        function copyClaimText() {
+            const copyText = document.getElementById('claim-output-text');
+            copyText.select();
+            document.execCommand('copy');
+            alert(currentLang === 'ru' ? 'Скопировано в буфер обмена!' : 'Copied to clipboard!');
+        }
+
+        function openPaymentModal(serviceName, price) {
+            document.getElementById('modal-service-name').innerText = 'Услуга: ' + serviceName;
+            document.getElementById('modal-service-price').innerText = price + ' ₸';
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function confirmPayment() {
+            closePaymentModal();
+            alert(currentLang === 'ru' ? 'Оплата через Kaspi прошла успешно!' : 'Kaspi payment successful!');
+        }
+
+        window.onload = function() {
+            generateClaimText();
+        }
+    </script>
+</body>
+</html>
